@@ -10,8 +10,8 @@
   </style>
 </head>
 <body>
-  <h1>🔑 Pilih Platform Untuk Dapatkan Key</h1>
-  <p id="loading">Loading daftar platform...</p>
+  <h1>🔑 Select Platform To Get Key</h1>
+  <p id="loading">Loading list of platforms...</p>
   <div id="platforms"></div>
 
   <script>
@@ -33,7 +33,7 @@
     const hwid = urlParams.get("hwid");
 
     if (!hwid) {
-      document.body.innerHTML = "<h2>❌ HWID tidak ditemukan di URL.</h2>";
+      document.body.innerHTML = "<h2>❌ HWID not found in URL.</h2>";
       throw new Error("HWID not found");
     }
 
