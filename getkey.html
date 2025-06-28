@@ -1,1 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Get Your Key | XZuyaX HUB</title>
+  <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-database-compat.js"></script>
+  <style>
+    body { font-family:sans-serif; background:#101020; color:white; text-align:center; padding:50px }
+    .button { background:#4c00ff; padding:15px 30px; border:none; border-radius:10px; color:white; cursor:pointer; margin:10px; font-weight:bold; }
+  </style>
+</head>
+<body>
+  <h1>🔑 Pilih Platform Untuk Dapatkan Key</h1>
+  <p id="loading">Loading daftar platform...</p>
+  <div id="platforms"></div>
 
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDz-XphmGqzwG1zQHePFjfA25LRLidNrN4",
+      authDomain: "xzuyaxhubkey.firebaseapp.com",
+      databaseURL: "https://xzuyaxhubkey-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "xzuyaxhubkey",
+      storageBucket: "xzuyaxhubkey.firebasestorage.app",
+      messagingSenderId: "537227442896",
+      appId: "1:537227442896:web:eb9f74bd38618e5f873cd5",
+      measurementId: "G-Y9YDBZJSW8"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const hwid = urlParams.get("hwid");
+
+    if (!hwid) {
+      document.body.innerHTML = "<h2>❌ HWID tidak ditemukan di URL.</h2>";
+      throw new Error("HWID not found");
+    }
+
+    db.ref("settings/platforms").once("value").then(snapshot => {
+      const data = snapshot.val();
+      const container = document.getElementById("platforms");
+      document.getElementById("loading").style.display = "none";
+
+      for (let key in data) {
+        const plat = data[key];
+        if (!plat.enabled) continue;
+
+        const btn = document.createElement("button");
+        btn.textContent = `🔗 ${plat.label}`;
+        btn.className = "button";
+        btn.onclick = () => {
+          const verifyUrl = plat.verifyUrl.replace("{hwid}", hwid);
+          window.location.href = verifyUrl + `&redirect=https://xzuyax.vercel.app/callback.html?hwid=${hwid}`;
+        };
+        container.appendChild(btn);
+      }
+    });
+  </script>
+</body>
+</html>
