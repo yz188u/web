@@ -1,18 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Get Your Key | XZuyaX HUB</title>
+  <title>Key Callback | XZuyaX HUB</title>
   <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-database-compat.js"></script>
   <style>
-    body { font-family:sans-serif; background:#101020; color:white; text-align:center; padding:50px }
-    .button { background:#4c00ff; padding:15px 30px; border:none; border-radius:10px; color:white; cursor:pointer; margin:10px; font-weight:bold; }
+    body { font-family: sans-serif; background: #101020; color: white; text-align: center; padding: 50px }
+    .success { background: #00c853; padding: 15px 30px; border-radius: 10px; margin-top: 20px; }
+    .button { margin-top: 30px; background: #6200ea; padding: 15px 25px; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
   </style>
 </head>
 <body>
-  <h1>🔑 Select Platform To Get Key</h1>
-  <p id="loading">Loading list of platforms...</p>
-  <div id="platforms"></div>
+  <h1>🔄 Verify Your Key...</h1>
+  <div id="status">Checking...</div>
+  <button id="toRobloxBtn" class="button" style="display:none;">➡️ Back to Roblox</button>
 
   <script>
     const firebaseConfig = {
@@ -29,33 +30,35 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const hwid = urlParams.get("hwid");
+    const params = new URLSearchParams(window.location.search);
+    const hwid = params.get("hwid");
+    const statusEl = document.getElementById("status");
+    const robloxBtn = document.getElementById("toRobloxBtn");
 
     if (!hwid) {
-      document.body.innerHTML = "<h2>❌ HWID not found in URL.</h2>";
-      throw new Error("HWID not found");
+      statusEl.innerHTML = "❌ HWID not found in URL.";
+      throw new Error("HWID missing");
     }
 
-    db.ref("settings/platforms").once("value").then(snapshot => {
-      const data = snapshot.val();
-      const container = document.getElementById("platforms");
-      document.getElementById("loading").style.display = "none";
+    // Ambil default durasi dari pengaturan
+    db.ref("settings/defaultDuration").once("value").then(snap => {
+      const duration = snap.val() || 86400000; // default: 24 jam
+      const expiredAt = Date.now() + duration;
 
-      for (let key in data) {
-        const plat = data[key];
-        if (!plat.enabled) continue;
-
-        const btn = document.createElement("button");
-        btn.textContent = `🔗 ${plat.label}`;
-        btn.className = "button";
-        btn.onclick = () => {
-          const verifyUrl = plat.verifyUrl.replace("{hwid}", hwid);
-          window.location.href = verifyUrl + `&redirect=https://xzuyax.vercel.app/callback.html?hwid=${hwid}`;
-        };
-        container.appendChild(btn);
-      }
+      db.ref("keys/" + hwid).set({
+        expires: expiredAt,
+        method: "callback"
+      }).then(() => {
+        statusEl.innerHTML = `<div class="success">✅ Key successfully activated! Valid until:<br><b>${new Date(expiredAt).toLocaleString()}</b></div>`;
+        robloxBtn.style.display = "inline-block";
+      }).catch(err => {
+        statusEl.innerHTML = `❌ Failed to save the key: ${err}`;
+      });
     });
+
+    robloxBtn.onclick = () => {
+      window.location.href = "roblox://"; // ini untuk redirect ke Roblox app
+    };
   </script>
 </body>
 </html>
