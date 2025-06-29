@@ -3,61 +3,82 @@
 <head>
   <title>Key Callback | XZuyaX HUB</title>
   <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-database-compat.js"></script>
   <style>
-    body { font-family: sans-serif; background: #101020; color: white; text-align: center; padding: 50px }
-    .success { background: #00c853; padding: 15px 30px; border-radius: 10px; margin-top: 20px; }
-    .button { margin-top: 30px; background: #6200ea; padding: 15px 25px; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
+    body {
+      font-family: sans-serif;
+      background: #101020;
+      color: white;
+      text-align: center;
+      padding: 50px;
+    }
+    .success {
+      background: #00c853;
+      padding: 15px 30px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+    .fail {
+      background: #b71c1c;
+      padding: 15px 30px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+    .button {
+      margin-top: 30px;
+      background: #6200ea;
+      padding: 15px 25px;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
-  <h1>🔄 Verify Your Key...</h1>
+  <h1>🔄 Verifying your key...</h1>
   <div id="status">Checking...</div>
-  <button id="toRobloxBtn" class="button" style="display:none;">➡️ Back to Roblox</button>
+  <button id="toRobloxBtn" class="button" style="display:none;">➡️ Open Roblox</button>
 
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyDz-XphmGqzwG1zQHePFjfA25LRLidNrN4",
-      authDomain: "xzuyaxhubkey.firebaseapp.com",
-      databaseURL: "https://xzuyaxhubkey-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "xzuyaxhubkey",
-      storageBucket: "xzuyaxhubkey.firebasestorage.app",
-      messagingSenderId: "537227442896",
-      appId: "1:537227442896:web:eb9f74bd38618e5f873cd5",
-      measurementId: "G-Y9YDBZJSW8"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
+    // Ambil HWID dari URL
     const params = new URLSearchParams(window.location.search);
     const hwid = params.get("hwid");
     const statusEl = document.getElementById("status");
     const robloxBtn = document.getElementById("toRobloxBtn");
 
     if (!hwid) {
-      statusEl.innerHTML = "❌ HWID not found in URL.";
+      statusEl.innerHTML = '<div class="fail">❌ HWID not found in URL.</div>';
       throw new Error("HWID missing");
     }
 
-    // Ambil default durasi dari pengaturan
-    db.ref("settings/defaultDuration").once("value").then(snap => {
-      const duration = snap.val() || 86400000; // default: 24 jam
-      const expiredAt = Date.now() + duration;
-
-      db.ref("keys/" + hwid).set({
-        expires: expiredAt,
-        method: "callback"
-      }).then(() => {
-        statusEl.innerHTML = `<div class="success">✅ Key successfully activated! Valid until:<br><b>${new Date(expiredAt).toLocaleString()}</b></div>`;
+    // Kirim ke PHP backend untuk proses
+    fetch("https://xzuyax.com/verify.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        hwid: hwid,
+        duration: 24 // durasi jam (default 24 jam)
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === "success") {
+        const dateStr = new Date(data.expires * 1000).toLocaleString();
+        statusEl.innerHTML = `<div class="success">✅ Key activated!<br>Valid until:<br><b>${dateStr}</b></div>`;
         robloxBtn.style.display = "inline-block";
-      }).catch(err => {
-        statusEl.innerHTML = `❌ Failed to save the key: ${err}`;
-      });
+      } else {
+        statusEl.innerHTML = `<div class="fail">❌ Failed: ${data.message}</div>`;
+      }
+    })
+    .catch(err => {
+      statusEl.innerHTML = `<div class="fail">❌ Error: ${err.message}</div>`;
     });
 
     robloxBtn.onclick = () => {
-      window.location.href = "roblox://"; // ini untuk redirect ke Roblox app
+      window.location.href = "roblox://";
     };
   </script>
 </body>
