@@ -40,13 +40,16 @@
       loadEl.innerHTML = `❌ HWID not detected. Please run the script in Roblox first.`;
     } else {
       db.ref("pending/" + hwid).once("value").then(snap => {
+        console.log("Snap:", snap.val()); // debug
         if (snap.exists()) {
           document.getElementById("getkey-options").style.display = "block";
           loadEl.style.display = "none";
         } else {
           loadEl.innerHTML = `<h3>⚠️ HWID not registered yet.</h3><p>Please run this script in Roblox first:</p>
-          <pre>loadstring(game:HttpGet('https://xzuyax.vercel.app/script.lua'))()</pre>`;
+          <pre>loadstring(game:HttpGet('https://verifyzuya.rf.gd/script.lua'))()</pre>`;
         }
+      }).catch(err => {
+        loadEl.innerHTML = `❌ Firebase Error: ${err}`;
       });
     }
   </script>
