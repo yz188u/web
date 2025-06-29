@@ -1,3 +1,4 @@
+<!-- XZuyaX HUB Full index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,32 +7,43 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
-  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-database-compat.js"></script>
-
   <style>
-    /* === Styles tetap sama seperti sebelumnya === */
-    /* ... [potongan style dari yang kamu kirim tetap utuh] ... */
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Outfit',sans-serif;background:linear-gradient(270deg,#0f0f1d,#1d1d2c,#0f0f1d);background-size:600% 600%;animation:bgLoop 15s ease infinite;min-height:100vh;color:#f9f9f9;display:flex;justify-content:center;align-items:center;position:relative;overflow-x:hidden;}
+    @keyframes bgLoop{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+    .section{position:absolute;top:0;left:0;width:100%;min-height:100vh;display:flex;justify-content:center;align-items:center;flex-direction:column;opacity:0;transform:scale(0.98);transition:opacity .5s ease,transform .5s ease;pointer-events:none;padding:2rem 1rem;}
+    .section.active{opacity:1;transform:scale(1);pointer-events:auto;}
+    .card{background:rgba(20,20,40,0.85);backdrop-filter:blur(12px);padding:2rem;border-radius:20px;max-width:480px;width:100%;box-shadow:0 10px 30px rgba(0,0,0,0.4);text-align:center;}
+    .logo{width:80px;margin-bottom:1rem;border-radius:12px;box-shadow:0 0 8px rgba(255,255,255,0.1);}
+    h1,h2{font-size:1.8rem;margin-bottom:0.5rem;}
+    p{font-size:1rem;color:#bbb;margin-bottom:1rem;}
+    .footer-link{color:#ffdaff;text-decoration:none;transition:.3s;}
+    .footer-link:hover{color:#ff9ff3}
+    .button{display:block;width:100%;max-width:300px;margin:0.5rem auto;padding:1rem 2rem;font-size:1rem;font-weight:600;border:none;border-radius:12px;color:#fff;background:linear-gradient(270deg,#3f5efb,#fc466b,#3f5efb);background-size:300% 300%;animation:gradientMove 6s ease infinite;transition:transform .3s ease;cursor:pointer;}
+    .button:hover{transform:scale(1.07);}
+    @keyframes gradientMove{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+    .script-list{display:grid;grid-template-columns:1fr;gap:1rem;}
+    .script-item{padding:1rem;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);cursor:pointer;transition:.3s;font-size:0.95rem;}
+    .script-item:hover{background:rgba(255,255,255,0.08);transform:scale(1.03);}
+    .code-box{background:#1e1e2f;color:#00ffbf;padding:1rem;font-family:monospace;border-radius:10px;font-size:0.85rem;word-break:break-all;border:1px solid rgba(255,255,255,0.1);margin-bottom:1rem;text-align:left;}
+    footer{position:fixed;bottom:10px;width:100%;text-align:center;font-size:0.85rem;color:#888;z-index:10;background:transparent;}
+    #toast{position:fixed;bottom:70px;right:20px;background:rgba(0,0,0,0.85);padding:1rem 1.5rem;border-radius:12px;color:#fff;font-weight:500;opacity:0;transition:opacity .4s ease;pointer-events:none;z-index:9999;}
+    @media(max-width:480px){.card{padding:1.2rem;border-radius:16px;}h1,h2{font-size:1.4rem;}.button{font-size:0.9rem;padding:0.8rem 1.2rem;}.code-box{font-size:0.8rem;}}
   </style>
 </head>
 <body>
-  <!-- Toast -->
   <div id="toast">Script Copied! ✅</div>
-
-  <!-- Welcome -->
   <div id="welcome-screen" class="section active">
     <div class="card">
-      <img src="https://cdn.discordapp.com/attachments/1378813571353415872/1387885696949288992/Untitled117_20250610170526.png" class="logo">
+      <img src="/assets/logo.png" class="logo">
       <h1>👑 XZuyaX's HUB</h1>
       <p>Make your life more enjoyable🤫</p>
       <p style="font-size:0.85rem;color:#6ef6ff;">✔ Trusted by 5,000+ Users</p>
       <button class="button" id="enterBtn">📃SCRIPTS📃</button>
     </div>
   </div>
-
-  <!-- Script List -->
   <div id="scripts-screen" class="section">
     <div class="card">
       <h2>Scripts List</h2>
@@ -40,44 +52,35 @@
       </div>
     </div>
   </div>
-
-  <!-- Script Detail -->
   <div id="script-detail-screen" class="section">
     <div class="card">
       <h1 id="script-name"></h1>
       <p id="script-desc"></p>
       <div class="code-box" id="script-code"></div>
       <p id="copy-info" style="font-size:0.9rem;color:#6ef6ff;margin-bottom:1rem;">Loading...</p>
-      <a href="#" id="openRawBtn" class="button" target="_blank">🔑GET KEY</a>
+      <a href="getkey.html" id="openRawBtn" class="button">🔑GET KEY</a>
       <button class="button" id="copyBtn">Copy Loadstring</button>
       <button class="button" id="backBtn">◀️ Back</button>
       <p style="margin-top:1rem;">Created by <a href="https://discord.gg/ZUYA" class="footer-link"><i class="ph-discord-logo"></i> Zuya</a></p>
     </div>
   </div>
-
-  <!-- Footer -->
-  <footer>
-    &copy; 2025 <b>XZuyaX HUB</b> — All rights reserved.<br>
-    <small id="visitor-count" style="color:#777;">Loading visitors...</small>
-  </footer>
-
+  <footer>&copy; 2025 <b>XZuyaX HUB</b> — All rights reserved.<br><small id="visitor-count" style="color:#777;">Loading visitors...</small></footer>
   <script>
-    // Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyCGQHhduCRnQ41AH7k_jH33379WYe-9Dlc",
       authDomain: "xzuyaxhub-734e2.firebaseapp.com",
       databaseURL: "https://xzuyaxhub-734e2-default-rtdb.firebaseio.com",
       projectId: "xzuyaxhub-734e2",
-      storageBucket: "xzuyaxhub-734e2.firebasestorage.app",
+      storageBucket: "xzuyaxhub-734e2.appspot.com",
       messagingSenderId: "75397705433",
-      appId: "1:75397705433:web:6c5be25cee1eccd72058c8"
+      appId: "1:75397705433:web:6c5be25cee1eccd72058c8",
+      measurementId: "G-8CXETQT94X"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const copyCountRef = db.ref('copyCounts/blueLockRivals');
     const visitRef = db.ref("visits/total");
 
-    // UI Elements
     const sec = {
       w: document.getElementById('welcome-screen'),
       l: document.getElementById('scripts-screen'),
@@ -96,9 +99,9 @@
     const scripts = {
       'blue-lock': {
         name: 'Blue Lock: Rivals',
-        desc: 'Auto Goal, Control Ball, Infinite Stamina, and more.',
+        desc: 'Auto Goal, Control Ball, Infinite Stamina, and more. Optimized for Blue Lock Rivals.',
         code: 'loadstring(game:HttpGet("https://raw.githubusercontent.com/XZuuyaX/XZuyaX-s-Hub/main/Main.Lua"))()',
-        raw: 'https://lootdest.org/s?eMHiYTAw&data=0jtpGgMIjVpRo/RXH4LKUGS3lnbGkJUxNWFd2mVmHxg%3D'
+        raw: 'getkey.html'
       }
     };
 
@@ -108,11 +111,19 @@
       setTimeout(() => toast.style.opacity = 0, 2500);
     }
 
+    copyCountRef.on('value', snap => {
+      const v = snap.val() || 0;
+      cInfo.textContent = `This script has been copied ${v} times`;
+    });
+
+    visitRef.transaction(current => (current || 0) + 1);
+    visitRef.on("value", snap => {
+      document.getElementById("visitor-count").textContent = `${snap.val()} visitors`;
+    });
+
     enterBtn.onclick = () => {
       sec.w.classList.remove('active');
       sec.l.classList.add('active');
-      const music = document.getElementById('bg-music');
-      if (music) music.play().catch(() => {});
     };
 
     document.querySelectorAll('.script-item').forEach(el => {
@@ -138,20 +149,6 @@
       sec.d.classList.remove('active');
       sec.l.classList.add('active');
     };
-
-    copyCountRef.on('value', snap => {
-      cInfo.textContent = `This script has been copied ${snap.val() || 0} times`;
-    });
-
-    visitRef.transaction(current => (current || 0) + 1);
-    visitRef.on("value", snap => {
-      document.getElementById("visitor-count").textContent = ` ${snap.val()} visitors`;
-    });
   </script>
-
-  <audio id="bg-music" autoplay loop>
-    <source src="https://cdn.discordapp.com/attachments/1378813571353415872/1388268770795061278/TOP_10_VIRAL_AURA_PHONK_SONGS_BRAZILIAN_PHONK_MIX_2025_AGGRESSIVE_BRAZILIAN_PHONK_MIX.mp3" type="audio/mpeg">
-    Your browser does not support audio.
-  </audio>
 </body>
 </html>
