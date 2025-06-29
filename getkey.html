@@ -1,18 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Get Your Key | XZuyaX HUB</title>
+  <meta charset="UTF-8">
+  <title>Get Key | XZuyaX HUB</title>
   <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-database-compat.js"></script>
   <style>
-    body { font-family:sans-serif; background:#101020; color:white; text-align:center; padding:50px }
-    .button { background:#4c00ff; padding:15px 30px; border:none; border-radius:10px; color:white; cursor:pointer; margin:10px; font-weight:bold; }
+    body { font-family: sans-serif; background: #0d0f21; color: white; text-align: center; padding: 40px; }
+    .button { margin: 1rem; padding: 1rem 2rem; background: #ff4081; border: none; border-radius: 10px; color: white; font-size: 1.1rem; cursor: pointer; }
   </style>
 </head>
 <body>
-  <h1>🔑 Select Platform To Get Key</h1>
-  <p id="loading">Loading list of platforms...</p>
-  <div id="platforms"></div>
+  <h1>🔑 Get Your Key</h1>
+  <div id="loading">Checking HWID...</div>
+  <div id="getkey-options" style="display:none">
+    <h3>Select Platform:</h3>
+    <a href="https://lootlabs-api-link.com" class="button">LootLabs</a>
+    <a href="https://linkvertise-api-link.com" class="button">Linkvertise</a>
+    <a href="https://workink-api-link.com" class="button">Work.ink</a>
+  </div>
 
   <script>
     const firebaseConfig = {
@@ -20,42 +26,29 @@
       authDomain: "xzuyaxhubkey.firebaseapp.com",
       databaseURL: "https://xzuyaxhubkey-default-rtdb.asia-southeast1.firebasedatabase.app",
       projectId: "xzuyaxhubkey",
-      storageBucket: "xzuyaxhubkey.firebasestorage.app",
+      storageBucket: "xzuyaxhubkey.appspot.com",
       messagingSenderId: "537227442896",
-      appId: "1:537227442896:web:eb9f74bd38618e5f873cd5",
-      measurementId: "G-Y9YDBZJSW8"
+      appId: "1:537227442896:web:eb9f74bd38618e5f873cd5"
     };
-
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const hwid = urlParams.get("hwid");
+    const hwid = new URLSearchParams(window.location.search).get("hwid");
+    const loadEl = document.getElementById("loading");
 
     if (!hwid) {
-      document.body.innerHTML = "<h2>❌ HWID not found in URL.</h2>";
-      throw new Error("HWID not found");
+      loadEl.innerHTML = `❌ HWID not detected. Please run the script in Roblox first.`;
+    } else {
+      db.ref("pending/" + hwid).once("value").then(snap => {
+        if (snap.exists()) {
+          document.getElementById("getkey-options").style.display = "block";
+          loadEl.style.display = "none";
+        } else {
+          loadEl.innerHTML = `<h3>⚠️ HWID not registered yet.</h3><p>Please run this script in Roblox first:</p>
+          <pre>loadstring(game:HttpGet('https://xzuyax.vercel.app/script.lua'))()</pre>`;
+        }
+      });
     }
-
-    db.ref("settings/platforms").once("value").then(snapshot => {
-      const data = snapshot.val();
-      const container = document.getElementById("platforms");
-      document.getElementById("loading").style.display = "none";
-
-      for (let key in data) {
-        const plat = data[key];
-        if (!plat.enabled) continue;
-
-        const btn = document.createElement("button");
-        btn.textContent = `🔗 ${plat.label}`;
-        btn.className = "button";
-        btn.onclick = () => {
-          const verifyUrl = plat.verifyUrl.replace("{hwid}", hwid);
-          window.location.href = verifyUrl + `&redirect=https://xzuyax.vercel.app/callback.html?hwid=${hwid}`;
-        };
-        container.appendChild(btn);
-      }
-    });
   </script>
 </body>
 </html>
