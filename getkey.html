@@ -1,32 +1,138 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
   <title>Get Key | XZuyaX HUB</title>
+
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-database-compat.js"></script>
-  <script src="firebaseConfig.js"></script>
+
+  <!-- Styles -->
   <style>
-    body { font-family:sans-serif; background:#0e0e23; color:white; text-align:center; padding:40px }
-    .btn { margin:1rem; padding:1rem 2rem; background:#ff4081; border:none; border-radius:10px; color:white; font-size:1.1rem; cursor:pointer }
+    body {
+      font-family: sans-serif;
+      background: #0d0f21;
+      color: white;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .button {
+      margin: 1rem;
+      padding: 1rem 2rem;
+      background: #ff4081;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: 1.1rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    pre {
+      background: #1a1a2e;
+      padding: 1rem;
+      border-radius: 8px;
+      color: #00e5ff;
+      font-size: 0.95rem;
+      overflow-x: auto;
+      display: inline-block;
+      text-align: left;
+      max-width: 90%;
+    }
+
+    .copy-container {
+      margin-top: 1rem;
+    }
+
+    .copy-btn {
+      background-color: #00e5ff;
+      color: #0d0f21;
+      border: none;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
-  <h1>🔑 Get Your Key</h1>
-  <div id="content"></div>
+  <h1>🔑 Get Your Access Key</h1>
+
+  <div id="loading">Checking your HWID...</div>
+
+  <div id="getkey-options" style="display: none;">
+    <h3>Select a platform to unlock the key:</h3>
+    <a id="lootlabs-btn" class="button">LootLabs</a>
+    <a id="linkvertise-btn" class="button">Linkvertise</a>
+    <a id="workink-btn" class="button">Work.ink</a>
+  </div>
 
   <script>
-    const hwid = new URLSearchParams(location.search).get("hwid");
-    const content = document.getElementById("content");
+    const firebaseConfig = {
+      apiKey: "AIzaSyDz-XphmGqzwG1zQHePFjfA25LRLidNrN4",
+      authDomain: "xzuyaxhubkey.firebaseapp.com",
+      databaseURL: "https://xzuyaxhubkey-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "xzuyaxhubkey",
+      storageBucket: "xzuyaxhubkey.appspot.com",
+      messagingSenderId: "537227442896",
+      appId: "1:537227442896:web:eb9f74bd38618e5f873cd5"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const params = new URLSearchParams(window.location.search);
+    const hwid = params.get("hwid");
+
+    const loadEl = document.getElementById("loading");
+    const optionsEl = document.getElementById("getkey-options");
+
+    const scriptCode = `loadstring(game:HttpGet("https://webgetkey-xzuyaxs-projects.vercel.app/script.lua"))()`;
+
+    function showScriptBox(message) {
+      loadEl.innerHTML = `
+        ${message}<br><br>
+        <pre id="scriptCode">${scriptCode}</pre>
+        <div class="copy-container">
+          <button class="copy-btn" onclick="copyScript()">Copy</button>
+        </div>
+      `;
+    }
+
+    function copyScript() {
+      const text = document.getElementById("scriptCode").innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("✅ Script copied to clipboard!");
+      }).catch(() => {
+        alert("❌ Failed to copy!");
+      });
+    }
 
     if (!hwid) {
-      content.innerHTML = "<p>❌ HWID not found. Please execute the script in Roblox.</p>";
+      showScriptBox("❌ HWID not detected.<br><br>Please run the script in Roblox first:");
     } else {
-      content.innerHTML = `
-        <h3>Choose a platform to continue:</h3>
-        <a class="btn" href="https://lootlabs.net/s/xyz?redir=https://webgetkey-xzuyaxs-projects.vercel.app/callback.html?hwid=${hwid}&platform=lootslab">LootLabs</a>
-        <a class="btn" href="https://linkvertise.com/12345?o=redirect&url=https://webgetkey-xzuyaxs-projects.vercel.app/callback.html?hwid=${hwid}&platform=linkvertise">Linkvertise</a>
-        <a class="btn" href="https://work.ink/abc?redir=https://webgetkey-xzuyaxs-projects.vercel.app/callback.html?hwid=${hwid}&platform=workink">Work.ink</a>
-      `;
+      db.ref("pending/" + hwid).once("value").then(snap => {
+        if (snap.exists()) {
+          loadEl.style.display = "none";
+          optionsEl.style.display = "block";
+
+          const redirectBase = "https://webgetkey-xzuyaxs-projects.vercel.app/callback.html?hwid=" + hwid;
+
+          document.getElementById("lootlabs-btn").href =
+            "https://lootlabs.net/s/xyz?redir=" + encodeURIComponent(redirectBase + "&platform=lootlabs");
+
+          document.getElementById("linkvertise-btn").href =
+            "https://linkvertise.com/12345?o=redirect&url=" + encodeURIComponent(redirectBase + "&platform=linkvertise");
+
+          document.getElementById("workink-btn").href =
+            "https://work.ink/abc?redir=" + encodeURIComponent(redirectBase + "&platform=workink");
+        } else {
+          showScriptBox("<h3>⚠️ Your HWID is not registered yet.</h3><p>Please run the script in Roblox first:</p>");
+        }
+      });
     }
   </script>
 </body>
