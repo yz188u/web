@@ -1,64 +1,20 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>Key Activated | XZuyaX HUB</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-database-compat.js"></script>
-
   <style>
-    body {
-      background: #0d0f21;
-      color: white;
-      font-family: 'Segoe UI', sans-serif;
-      text-align: center;
-      padding: 60px 20px;
-    }
-    .box {
-      background: #1a1a2e;
-      padding: 2rem;
-      border-radius: 16px;
-      max-width: 480px;
-      margin: auto;
-      box-shadow: 0 0 20px rgba(0,0,0,0.4);
-    }
-    h1 {
-      font-size: 1.8rem;
-      color: #00e5ff;
-      margin-bottom: 1rem;
-    }
-    .info {
-      margin-top: 1.5rem;
-      color: #aaa;
-    }
-    .button {
-      margin-top: 2rem;
-      padding: 0.8rem 1.5rem;
-      font-size: 1rem;
-      background: #00e5ff;
-      color: #0d0f21;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .key-box {
-      margin-top: 1rem;
-      background: #000;
-      padding: 1rem;
-      border-radius: 10px;
-      color: #00ffbf;
-      font-family: monospace;
-      font-size: 0.95rem;
-      word-break: break-word;
-    }
+    body { background: #0d0f21; color: white; font-family: 'Segoe UI', sans-serif; text-align: center; padding: 60px 20px; }
+    .box { background: #1a1a2e; padding: 2rem; border-radius: 16px; max-width: 480px; margin: auto; box-shadow: 0 0 20px rgba(0,0,0,0.4); }
+    h1 { font-size: 1.8rem; color: #00e5ff; margin-bottom: 1rem; }
+    .info { margin-top: 1.5rem; color: #aaa; }
+    .button { margin-top: 2rem; padding: 0.8rem 1.5rem; font-size: 1rem; background: #00e5ff; color: #0d0f21; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
+    .key-box { margin-top: 1rem; background: #000; padding: 1rem; border-radius: 10px; color: #00ffbf; font-family: monospace; font-size: 0.95rem; word-break: break-word; }
   </style>
 </head>
 <body>
-
   <div class="box">
     <h1>✅ Your Key is Activated!</h1>
     <div id="status">Saving key...</div>
@@ -95,20 +51,15 @@
       throw new Error("Missing HWID");
     }
 
-    // Ambil durasi default dari settings di Firebase
     db.ref("settings/defaultDuration").once("value").then(snap => {
-      const duration = snap.val() || 86400000; // 1 hari = 86400000ms
+      const duration = snap.val() || 86400000;
       const expiredAt = Date.now() + duration;
       const readableDate = new Date(expiredAt).toLocaleString();
 
-      const keyData = {
-        expires: expiredAt,
-        platform: platform
-      };
+      const keyData = { expires: expiredAt, platform: platform };
 
-      // Simpan key di Firebase
       db.ref("keys/" + hwid).set(keyData).then(() => {
-        const generatedKey = btoa(hwid).slice(0, 24); // fake key tampilannya
+        const generatedKey = btoa(hwid).slice(0, 24);
         statusEl.innerHTML = `<strong>🎉 Your key is ready!</strong>`;
         keyBox.innerText = generatedKey;
         keyBox.style.display = "block";
