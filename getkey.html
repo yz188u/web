@@ -8,7 +8,6 @@
   <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-database-compat.js"></script>
 
-  <!-- Styles -->
   <style>
     body {
       font-family: sans-serif;
@@ -60,11 +59,10 @@
 </head>
 <body>
   <h1>🔑 Get Your Access Key</h1>
-
   <div id="loading">Checking your HWID...</div>
 
   <div id="getkey-options" style="display: none;">
-    <h3>Select a platform to unlock the key:</h3>
+    <h3>Select a platform to unlock your key:</h3>
     <a id="lootlabs-btn" class="button">LootLabs</a>
     <a id="linkvertise-btn" class="button">Linkvertise</a>
     <a id="workink-btn" class="button">Work.ink</a>
@@ -80,7 +78,6 @@
       messagingSenderId: "537227442896",
       appId: "1:537227442896:web:eb9f74bd38618e5f873cd5"
     };
-
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
@@ -114,25 +111,41 @@
     if (!hwid) {
       showScriptBox("❌ HWID not detected.<br><br>Please run the script in Roblox first:");
     } else {
+      // Step 1: Check Firebase
       db.ref("pending/" + hwid).once("value").then(snap => {
         if (snap.exists()) {
-          loadEl.style.display = "none";
-          optionsEl.style.display = "block";
-
-          const redirectBase = "https://webgetkey-xzuyaxs-projects.vercel.app/callback.html?hwid=" + hwid;
-
-          document.getElementById("lootlabs-btn").href =
-            "https://lootlabs.net/s/xyz?redir=" + encodeURIComponent(redirectBase + "&platform=lootlabs");
-
-          document.getElementById("linkvertise-btn").href =
-            "https://linkvertise.com/12345?o=redirect&url=" + encodeURIComponent(redirectBase + "&platform=linkvertise");
-
-          document.getElementById("workink-btn").href =
-            "https://work.ink/abc?redir=" + encodeURIComponent(redirectBase + "&platform=workink");
+          // ✅ Already registered
+          showPlatforms();
         } else {
-          showScriptBox("<h3>⚠️ Your HWID is not registered yet.</h3><p>Please run the script in Roblox first:</p>");
+          // ❌ Not yet registered, try to auto-register
+          loadEl.innerHTML = "⏳ Registering HWID... Please wait...";
+          fetch("https://verifyzuya.rf.gd/verify.php?hwid=" + hwid)
+            .then(() => {
+              setTimeout(() => {
+                location.reload(); // Reload untuk cek ulang
+              }, 2000);
+            })
+            .catch(() => {
+              showScriptBox("⚠️ Failed to register HWID. Please run the Roblox script manually.");
+            });
         }
       });
+    }
+
+    function showPlatforms() {
+      loadEl.style.display = "none";
+      optionsEl.style.display = "block";
+
+      const baseRedirect = "https://webgetkey-xzuyaxs-projects.vercel.app/callback.html?hwid=" + hwid;
+
+      document.getElementById("lootlabs-btn").href =
+        "https://lootlabs.net/s/xyz?redir=" + encodeURIComponent(baseRedirect + "&platform=lootlabs");
+
+      document.getElementById("linkvertise-btn").href =
+        "https://linkvertise.com/12345?o=redirect&url=" + encodeURIComponent(baseRedirect + "&platform=linkvertise");
+
+      document.getElementById("workink-btn").href =
+        "https://work.ink/abc?redir=" + encodeURIComponent(baseRedirect + "&platform=workink");
     }
   </script>
 </body>
