@@ -69,6 +69,7 @@
   </div>
 
   <script>
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyDz-XphmGqzwG1zQHePFjfA25LRLidNrN4",
       authDomain: "xzuyaxhubkey.firebaseapp.com",
@@ -81,12 +82,14 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
+    // Parse HWID from URL
     const params = new URLSearchParams(window.location.search);
     const hwid = params.get("hwid");
 
     const loadEl = document.getElementById("loading");
     const optionsEl = document.getElementById("getkey-options");
 
+    // Script template for copy
     const scriptCode = `loadstring(game:HttpGet("https://webgetkey-xzuyaxs-projects.vercel.app/script.lua"))()`;
 
     function showScriptBox(message) {
@@ -108,22 +111,19 @@
       });
     }
 
+    // Main logic
     if (!hwid) {
       showScriptBox("❌ HWID not detected.<br><br>Please run the script in Roblox first:");
     } else {
-      // Step 1: Check Firebase
       db.ref("pending/" + hwid).once("value").then(snap => {
         if (snap.exists()) {
-          // ✅ Already registered
           showPlatforms();
         } else {
-          // ❌ Not yet registered, try to auto-register
+          // Register via PHP
           loadEl.innerHTML = "⏳ Registering HWID... Please wait...";
           fetch("https://verifyzuya.rf.gd/verify.php?hwid=" + hwid)
             .then(() => {
-              setTimeout(() => {
-                location.reload(); // Reload untuk cek ulang
-              }, 2000);
+              setTimeout(() => location.reload(), 1500);
             })
             .catch(() => {
               showScriptBox("⚠️ Failed to register HWID. Please run the Roblox script manually.");
@@ -139,7 +139,7 @@
       const baseRedirect = "https://webgetkey-xzuyaxs-projects.vercel.app/callback.html?hwid=" + hwid;
 
       document.getElementById("lootlabs-btn").href =
-        "https://lootlabs.net/s/xyz?redir=" + encodeURIComponent(baseRedirect + "&platform=lootlabs");
+        "https://loot-link.com/s?PZw7KH9e&redir=" + encodeURIComponent(baseRedirect + "&platform=lootlabs");
 
       document.getElementById("linkvertise-btn").href =
         "https://linkvertise.com/12345?o=redirect&url=" + encodeURIComponent(baseRedirect + "&platform=linkvertise");
