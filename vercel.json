@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    { "source": "/getkey", "destination": "/getkey.html" },
+    { "source": "/callback", "destination": "/callback.html" },
+    { "source": "/script", "destination": "/script.lua" },
+    { "source": "/", "destination": "/index.html" }
+  ]
+}
