@@ -8,7 +8,6 @@
   <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-database-compat.js"></script>
 
-  <!-- Styles -->
   <style>
     body {
       font-family: sans-serif;
@@ -17,6 +16,7 @@
       text-align: center;
       padding: 40px;
     }
+
     .button {
       margin: 1rem;
       padding: 1rem 2rem;
@@ -29,6 +29,7 @@
       text-decoration: none;
       display: inline-block;
     }
+
     pre {
       background: #1a1a2e;
       padding: 1rem;
@@ -40,9 +41,11 @@
       text-align: left;
       max-width: 90%;
     }
+
     .copy-container {
       margin-top: 1rem;
     }
+
     .copy-btn {
       background-color: #00e5ff;
       color: #0d0f21;
@@ -84,10 +87,12 @@
     const loadEl = document.getElementById("loading");
     const optionsEl = document.getElementById("getkey-options");
 
+    const scriptCode = `loadstring(game:HttpGet("https://webgetkey-xzuyaxs-projects.vercel.app/script.lua"))()`;
+
     function showScriptBox(message) {
       loadEl.innerHTML = `
         ${message}<br><br>
-        <pre id="scriptCode">loadstring(game:HttpGet("https://webgetkey-xzuyaxs-projects.vercel.app/script.lua"))()</pre>
+        <pre id="scriptCode">${scriptCode}</pre>
         <div class="copy-container">
           <button class="copy-btn" onclick="copyScript()">Copy</button>
         </div>
@@ -106,19 +111,14 @@
     if (!hwid) {
       showScriptBox("❌ HWID not detected.<br><br>Please run the script in Roblox first:");
     } else {
-      // Step 1: Check if HWID already registered
       db.ref("pending/" + hwid).once("value").then(snap => {
         if (snap.exists()) {
-          // ✅ Registered, show platform buttons
           showPlatforms();
         } else {
-          // ❌ Not registered, try verify.php to register it
-          loadEl.innerHTML = "⏳ Registering HWID...";
+          loadEl.innerHTML = "⏳ Registering HWID... Please wait...";
           fetch("https://verifyzuya.rf.gd/verify.php?hwid=" + hwid)
             .then(() => {
-              setTimeout(() => {
-                location.reload();
-              }, 2000);
+              setTimeout(() => location.reload(), 2000);
             })
             .catch(() => {
               showScriptBox("⚠️ Failed to register HWID. Please run the Roblox script manually.");
@@ -131,16 +131,27 @@
       loadEl.style.display = "none";
       optionsEl.style.display = "block";
 
-      const baseRedirect = "https://webgetkey-xzuyaxs-projects.vercel.app/callback?hwid=" + hwid;
+      const redirectBase = "https://webgetkey-xzuyaxs-projects.vercel.app/callback?hwid=" + hwid;
 
-      document.getElementById("lootlabs-btn").href =
-        "https://loot-link.com/s?PZw7KH9e&redir=" + encodeURIComponent(baseRedirect + "&platform=lootlabs");
+      // Ambil data platform dari Firebase
+      db.ref("platforms").once("value").then(snapshot => {
+        const platforms = snapshot.val();
 
-      document.getElementById("linkvertise-btn").href =
-        "https://linkvertise.com/12345?o=redirect&url=" + encodeURIComponent(baseRedirect + "&platform=linkvertise");
+        if (platforms.lootlabs?.base) {
+          const url = platforms.lootlabs.base + "&redir=" + encodeURIComponent(redirectBase + "&platform=lootlabs");
+          document.getElementById("lootlabs-btn").href = url;
+        }
 
-      document.getElementById("workink-btn").href =
-        "https://work.ink/abc?redir=" + encodeURIComponent(baseRedirect + "&platform=workink");
+        if (platforms.linkvertise?.base) {
+          const url = platforms.linkvertise.base + "?o=redirect&url=" + encodeURIComponent(redirectBase + "&platform=linkvertise");
+          document.getElementById("linkvertise-btn").href = url;
+        }
+
+        if (platforms.workink?.base) {
+          const url = platforms.workink.base + "?redir=" + encodeURIComponent(redirectBase + "&platform=workink");
+          document.getElementById("workink-btn").href = url;
+        }
+      });
     }
   </script>
 </body>
