@@ -142,7 +142,7 @@
     function loadPlatforms(hwid) {
       db.ref("platforms").once("value").then((snapshot) => {
         const platforms = snapshot.val() || {};
-        const base = `https://verifyzuya.rf.gd/generate_redirect.php?hwid=${encodeURIComponent(hwid)}`;
+        const base = `https://verifyzuya.rf.gd/verify?hwid=${encodeURIComponent(hwid)}`;
 
         const buttons = [];
         const loot = document.getElementById("lootlabs");
