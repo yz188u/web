@@ -1,76 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>XZuyaX HUB - Key System</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
   <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-database-compat.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
+    :root {
+      --gradient-main: linear-gradient(90deg, #ff77c6, #78dbff);
+      --dark-bg: radial-gradient(circle at 50% 20%, #4b0082, #000);
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
       font-family: 'Inter', sans-serif;
-      background: radial-gradient(circle at 50% 20%, #4b0082, #000);
+      background: var(--dark-bg);
       color: white;
+      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
-      padding: 2rem;
+      overflow-x: hidden;
+      padding: 1.5rem;
     }
     .container {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
       padding: 2rem;
       border-radius: 20px;
-      backdrop-filter: blur(15px);
-      max-width: 500px;
+      backdrop-filter: blur(20px);
+      max-width: 520px;
       width: 100%;
-      box-shadow: 0 0 30px rgba(255, 0, 255, 0.2);
+      box-shadow: 0 0 30px rgba(255, 0, 255, 0.15);
+      transform: translateY(50px);
+      opacity: 0;
+      animation: slideFadeIn 0.8s ease forwards;
     }
+
+    @keyframes slideFadeIn {
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
     h1 {
-      font-size: 2rem;
-      margin-bottom: 1rem;
+      font-size: 2.2rem;
       text-align: center;
-      background: linear-gradient(90deg, #ff77c6, #78dbff);
+      margin-bottom: 1.5rem;
+      background: var(--gradient-main);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
+
     .tutorial-box {
       background: rgba(255,255,255,0.05);
       padding: 1rem;
       border-radius: 12px;
       margin-bottom: 1.5rem;
+      border-left: 3px solid #ff77c6;
+      animation: fadeIn 1.2s ease-in;
     }
-    .tutorial-box ol { margin-left: 1.2rem; }
+
+    .tutorial-box ol {
+      margin-left: 1.5rem;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      opacity: 0.9;
+    }
+
     input[type="text"] {
-      width: 100%; padding: 1rem; border-radius: 12px;
+      width: 100%;
+      padding: 1rem;
+      border-radius: 12px;
       border: 1px solid rgba(255,255,255,0.2);
-      background: rgba(255,255,255,0.05);
-      color: white; margin-bottom: 1rem;
+      background: rgba(255,255,255,0.07);
+      color: white;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      transition: border 0.3s ease;
     }
+
+    input[type="text"]:focus {
+      outline: none;
+      border: 1px solid #78dbff;
+    }
+
     button {
-      width: 100%; padding: 1rem;
-      background: linear-gradient(90deg, #ff77c6, #78dbff);
-      border: none; border-radius: 12px;
-      color: black; font-weight: bold;
+      width: 100%;
+      padding: 1rem;
+      font-size: 1rem;
+      background: var(--gradient-main);
+      border: none;
+      border-radius: 12px;
+      color: black;
+      font-weight: bold;
       cursor: pointer;
+      transition: all 0.3s ease;
     }
+
+    button:hover {
+      transform: translateY(-2px) scale(1.01);
+      box-shadow: 0 0 15px rgba(120, 219, 255, 0.4);
+    }
+
     .status {
       text-align: center;
       margin-top: 1rem;
-      font-size: 0.9rem;
-      opacity: 0.8;
+      font-size: 0.95rem;
+      min-height: 24px;
+      opacity: 0.85;
+      animation: fadeIn 1s ease-in-out;
     }
-    .platforms { display: none; margin-top: 2rem; }
-    .platforms h3 { text-align: center; margin-bottom: 1rem; }
+
+    .platforms {
+      display: none;
+      margin-top: 2rem;
+    }
+
+    .platforms h3 {
+      text-align: center;
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+
     .platforms-wrapper {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 10px;
+      gap: 12px;
     }
+
     .platform-button {
       display: none;
       background: #6f42c1;
@@ -81,8 +146,23 @@
       font-weight: 500;
       min-width: 120px;
       text-align: center;
+      transition: transform 0.3s ease, background 0.3s ease;
     }
-    .platform-button:hover { background: #8e44ad; }
+
+    .platform-button:hover {
+      background: #8e44ad;
+      transform: scale(1.05);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @media (max-width: 500px) {
+      h1 { font-size: 1.7rem; }
+      .container { padding: 1.5rem; }
+    }
   </style>
 </head>
 <body>
@@ -92,9 +172,9 @@
       <strong>How to Get Your HWID:</strong>
       <ol>
         <li>Open Roblox and join your game.</li>
-        <li>Click the "Get HWID" button in the GUI.</li>
+        <li>Click the <b>"Get HWID"</b> button in the GUI.</li>
         <li>Paste the HWID into the field below.</li>
-        <li>Click Submit to unlock your platform links.</li>
+        <li>Click Submit to unlock your verification platforms.</li>
       </ol>
     </div>
     <input type="text" id="hwidInput" placeholder="Paste your HWID here...">
@@ -121,19 +201,31 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    function submitHWID() {
+    function isValidFormat(hwid) {
+      return /^[a-zA-Z0-9_\-]{16,64}$/.test(hwid);
+    }
+
+    async function submitHWID() {
       const hwidRaw = document.getElementById("hwidInput").value.trim();
-      const hwid = encodeURIComponent(hwidRaw); // Encode untuk keamanan path Firebase
+      const hwid = encodeURIComponent(hwidRaw);
       const status = document.getElementById("status");
 
-      if (!hwidRaw || hwidRaw.length < 3) {
-        status.textContent = "❌ Please enter a valid HWID.";
+      if (!hwidRaw || !isValidFormat(hwidRaw)) {
+        status.textContent = "❌ Invalid HWID format. Please copy it from the in-game GUI.";
         return;
       }
 
-      status.textContent = "⏳ Submitting HWID...";
+      status.textContent = "🔍 Checking HWID...";
+      const validSnap = await db.ref("valid_hwids/" + hwid).once("value");
+
+      if (!validSnap.exists()) {
+        status.textContent = "❌ HWID not found. Please use the real one from Roblox.";
+        return;
+      }
+
+      status.textContent = "⏳ Registering...";
       db.ref("pending/" + hwid).set({ created: Date.now() }).then(() => {
-        status.textContent = "✅ HWID registered!";
+        status.textContent = "✅ HWID registered successfully!";
         loadPlatforms(hwid);
       }).catch(error => {
         status.textContent = "❌ Error: " + error.message;
@@ -144,8 +236,8 @@
       db.ref("platforms").once("value").then((snapshot) => {
         const platforms = snapshot.val() || {};
         const base = `https://verifyzuya.rf.gd/verify?hwid=${hwid}`;
-
         let count = 0;
+
         const loot = document.getElementById("lootlabs");
         const linkv = document.getElementById("linkvertise");
         const work = document.getElementById("workink");
@@ -167,9 +259,7 @@
         }
 
         const wrapper = document.getElementById("platformWrapper");
-        if (count === 1) wrapper.style.justifyContent = "center";
-        else if (count === 2) wrapper.style.justifyContent = "space-around";
-        else wrapper.style.justifyContent = "center";
+        wrapper.style.justifyContent = count === 1 ? "center" : "space-around";
 
         document.getElementById("formPage").style.display = "none";
         document.getElementById("platformPage").style.display = "block";
