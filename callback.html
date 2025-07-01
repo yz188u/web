@@ -2,23 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Key Activated | XZuyaX HUB</title>
+  <title>Access Result | XZuyaX HUB</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-database-compat.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
+      margin: 0;
       font-family: 'Inter', sans-serif;
-      background: radial-gradient(circle at 50% 20%, #4b0082, #000);
-      color: white;
+      background: radial-gradient(circle at 50% 20%, #0f0c29, #302b63, #24243e);
+      color: #fff;
       display: flex;
-      align-items: center;
       justify-content: center;
-      min-height: 100vh;
-      padding: 2rem;
+      align-items: center;
+      height: 100vh;
       text-align: center;
+      padding: 1rem;
     }
     .container {
       background: rgba(255,255,255,0.05);
@@ -26,29 +26,35 @@
       padding: 2rem;
       border-radius: 20px;
       backdrop-filter: blur(15px);
-      max-width: 500px;
-      box-shadow: 0 0 30px rgba(255, 0, 255, 0.2);
+      max-width: 480px;
+      box-shadow: 0 0 25px rgba(255, 119, 198, 0.2);
     }
-    h1 { font-size: 2rem; margin-bottom: 1rem; background: linear-gradient(90deg, #ff77c6, #78dbff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .status, .info { margin-top: 1rem; font-size: 0.95rem; }
-    .key-box {
-      margin-top: 1rem;
-      background: rgba(0,0,0,0.6);
-      padding: 1rem;
-      border-radius: 12px;
-      color: #00ffbf;
-      font-family: monospace;
-      word-break: break-word;
-      display: none;
+    h1 {
+      font-size: 2rem;
+      background: linear-gradient(90deg, #78dbff, #ff77c6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1rem;
     }
-    .button {
-      margin-top: 1rem;
-      padding: 0.8rem 1.2rem;
+    .status {
+      font-size: 1.2rem;
+      margin: 1rem 0;
+    }
+    .timer {
       font-size: 1rem;
-      background: linear-gradient(90deg, #ff77c6, #78dbff);
+      color: #78dbff;
+      margin-top: 0.5rem;
+    }
+    .error {
+      color: #ff6b6b;
+      font-weight: bold;
+    }
+    button {
+      margin-top: 1.5rem;
+      padding: 0.7rem 1.5rem;
+      background: linear-gradient(90deg, #78dbff, #ff77c6);
       border: none;
       border-radius: 12px;
-      color: black;
       font-weight: bold;
       cursor: pointer;
     }
@@ -56,16 +62,14 @@
 </head>
 <body>
   <div class="container">
-    <h1>🔒 Key Validation</h1>
+    <h1>🔐 XZuyaX HUB</h1>
     <div class="status" id="status">Checking access...</div>
-    <div class="key-box" id="key-box"></div>
-    <div class="info" id="info"></div>
-    <button class="button" id="copyBtn" style="display:none;">📋 Copy Key</button>
-    <button class="button" style="margin-top:1.5rem;" onclick="window.location.href='roblox://'">🎮 Back to Roblox</button>
+    <div class="timer" id="timer"></div>
+    <button onclick="window.location.href='roblox://'">🎮 Back to Roblox</button>
   </div>
 
   <script>
-    // Firebase Setup
+    // Firebase setup
     const firebaseConfig = {
       apiKey: "AIzaSyDz-XphmGqzwG1zQHePFjfA25LRLidNrN4",
       authDomain: "xzuyaxhubkey.firebaseapp.com",
@@ -76,64 +80,74 @@
     const db = firebase.database();
 
     const statusEl = document.getElementById("status");
-    const keyBox = document.getElementById("key-box");
-    const copyBtn = document.getElementById("copyBtn");
-    const infoEl = document.getElementById("info");
-
+    const timerEl = document.getElementById("timer");
     const params = new URLSearchParams(location.search);
     const hwid = params.get("hwid");
     const token = params.get("token");
-    const platform = params.get("platform") || "unknown";
 
-    // Step 1: Validasi URL dan asal akses
-    const ref = document.referrer;
     if (!hwid || !token) {
-      statusEl.innerHTML = "❌ HWID / Token missing.";
-      throw new Error("Missing required params");
+      statusEl.innerHTML = "❌ Missing HWID or token.";
+      statusEl.classList.add("error");
+      throw new Error("Missing HWID or token");
     }
 
-    if (!ref.includes("loot-link.com") && !ref.includes("verifyzuya.rf.gd")) {
-      statusEl.innerHTML = "❌ Illegal access. Go through the task first!";
-      throw new Error("Invalid access origin");
-    }
+    let expiresAt = null;
 
-    // Step 2: Validasi Token
-    db.ref("tokens/" + hwid).once("value").then(snap => {
-      const savedToken = snap.val();
-      if (savedToken !== token) {
-        statusEl.innerHTML = "❌ Invalid or expired token.";
-        throw new Error("Token mismatch");
+    async function validate() {
+      try {
+        const tokenSnap = await db.ref("tokens/" + hwid).get();
+        const tokenMeta = await db.ref("token_meta/" + hwid).get();
+
+        if (!tokenSnap.exists() || tokenSnap.val() !== token) {
+          throw "❌ Invalid or expired token.";
+        }
+
+        const created = tokenMeta.val()?.created || 0;
+        if (Date.now() - created > 5 * 60 * 1000) throw "❌ Token expired.";
+
+        // Delete token and assign key
+        await db.ref("tokens/" + hwid).remove();
+        await db.ref("token_meta/" + hwid).remove();
+
+        const durationSnap = await db.ref("settings/defaultDuration").get();
+        const duration = durationSnap.val() || 86400000; // default: 1 day
+
+        expiresAt = Date.now() + duration;
+        await db.ref("keys/" + hwid).set({ expires: expiresAt });
+
+        statusEl.innerHTML = "🔓 Access is Allowed";
+        startCountdown();
+      } catch (err) {
+        statusEl.innerHTML = err.toString();
+        statusEl.classList.add("error");
       }
+    }
 
-      // Step 3: Hapus token & simpan key
-      db.ref("tokens/" + hwid).remove();
-      return db.ref("settings/defaultDuration").once("value");
-    }).then(snap => {
-      const duration = snap.val() || 86400000;
-      const expiresAt = Date.now() + duration;
-      const key = btoa(hwid).slice(0, 24);
+    function startCountdown() {
+      const update = () => {
+        const now = Date.now();
+        const remaining = expiresAt - now;
 
-      return db.ref("keys/" + hwid).set({
-        expires: expiresAt,
-        platform: platform
-      }).then(() => {
-        statusEl.innerHTML = "🎉 Key is ready!";
-        keyBox.innerText = key;
-        keyBox.style.display = "block";
-        copyBtn.style.display = "inline-block";
-        infoEl.innerText = "Valid until: " + new Date(expiresAt).toLocaleString();
-      });
-    }).catch(err => {
-      console.error(err);
-      if (!statusEl.innerText.includes("❌"))
-        statusEl.innerHTML = "❌ An error occurred. Try again.";
-    });
+        if (remaining <= 0) {
+          timerEl.innerHTML = "⛔ Expired";
+          statusEl.innerHTML = "❌ Access Expired. Please get a new key.";
+          statusEl.classList.add("error");
+          clearInterval(interval);
+          return;
+        }
 
-    copyBtn.onclick = () => {
-      navigator.clipboard.writeText(keyBox.innerText).then(() => {
-        alert("✅ Key copied!");
-      });
-    };
+        const hrs = Math.floor(remaining / (1000 * 60 * 60));
+        const mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+        const secs = Math.floor((remaining % (1000 * 60)) / 1000);
+
+        timerEl.innerHTML = `⏳ Time left: ${hrs}h ${mins}m ${secs}s`;
+      };
+
+      update();
+      const interval = setInterval(update, 1000);
+    }
+
+    validate();
   </script>
 </body>
 </html>
