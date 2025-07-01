@@ -3,23 +3,112 @@
 <head>
   <meta charset="UTF-8" />
   <title>Key Activated | XZuyaX HUB</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-database-compat.js"></script>
+
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Style -->
   <style>
-    body { background: #0d0f21; color: white; font-family: 'Segoe UI', sans-serif; text-align: center; padding: 60px 20px; }
-    .box { background: #1a1a2e; padding: 2rem; border-radius: 16px; max-width: 480px; margin: auto; box-shadow: 0 0 20px rgba(0,0,0,0.4); }
-    .button { margin-top: 2rem; padding: 0.8rem 1.5rem; font-size: 1rem; background: #00e5ff; color: #0d0f21; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
-    .key-box { margin-top: 1rem; background: #000; padding: 1rem; border-radius: 10px; color: #00ffbf; font-family: monospace; font-size: 0.95rem; word-break: break-all; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at 50% 20%, #4b0082, #000);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+      overflow-x: hidden;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 2rem;
+      border-radius: 20px;
+      backdrop-filter: blur(15px);
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 0 30px rgba(255, 0, 255, 0.2);
+      animation: fadeIn 0.8s ease;
+      text-align: center;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      background: linear-gradient(90deg, #ff77c6, #78dbff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .key-box {
+      margin-top: 1rem;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 1rem;
+      border-radius: 12px;
+      color: #00ffbf;
+      font-family: monospace;
+      font-size: 0.95rem;
+      word-break: break-word;
+    }
+
+    .status {
+      margin-top: 1rem;
+      font-size: 0.95rem;
+      opacity: 0.9;
+    }
+
+    .button {
+      margin-top: 1rem;
+      padding: 0.9rem 1.4rem;
+      font-size: 1rem;
+      background: linear-gradient(90deg, #ff77c6, #78dbff);
+      border: none;
+      border-radius: 12px;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+    }
+
+    .info {
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      color: #ccc;
+    }
   </style>
 </head>
 <body>
-  <div class="box">
-    <h1>✅ Your Key is Activated!</h1>
-    <div id="status">Saving key...</div>
+
+  <div class="container">
+    <h1>✓ Your Key is Activated!</h1>
+    <div class="status" id="status">Saving key...</div>
     <div class="key-box" id="key-box" style="display:none;"></div>
-    <button class="button" id="copyBtn" style="display:none;">Copy Key</button>
-    <div id="expiry-info" style="color:#aaa;margin-top:1rem;"></div>
-    <button class="button" onclick="window.location.href='roblox://';">🎮 Back to Roblox</button>
+    <button class="button" id="copyBtn" style="display:none;">📋 Copy Key</button>
+    <div class="info" id="expiry-info"></div>
+    <button class="button" style="margin-top: 1.5rem;" onclick="window.location.href='roblox://'">🎮 Back to Roblox</button>
   </div>
 
   <script>
@@ -27,10 +116,7 @@
       apiKey: "AIzaSyDz-XphmGqzwG1zQHePFjfA25LRLidNrN4",
       authDomain: "xzuyaxhubkey.firebaseapp.com",
       databaseURL: "https://xzuyaxhubkey-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "xzuyaxhubkey",
-      storageBucket: "xzuyaxhubkey.appspot.com",
-      messagingSenderId: "537227442896",
-      appId: "1:537227442896:web:eb9f74bd38618e5f873cd5"
+      projectId: "xzuyaxhubkey"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
@@ -39,13 +125,18 @@
     const hwid = params.get("hwid");
     const platform = params.get("platform") || "unknown";
 
+    const statusEl = document.getElementById("status");
+    const keyBox = document.getElementById("key-box");
+    const copyBtn = document.getElementById("copyBtn");
+    const expiryInfo = document.getElementById("expiry-info");
+
     if (!hwid) {
-      document.getElementById("status").innerText = "❌ HWID missing in URL.";
+      statusEl.innerHTML = "❌ HWID missing in URL.";
       throw new Error("Missing HWID");
     }
 
     db.ref("settings/defaultDuration").once("value").then(snap => {
-      const duration = snap.val() || 86400000;
+      const duration = snap.val() || 86400000; // 24 jam default
       const expiredAt = Date.now() + duration;
       const readableDate = new Date(expiredAt).toLocaleString();
 
@@ -56,18 +147,18 @@
 
       db.ref("keys/" + hwid).set(keyData).then(() => {
         const generatedKey = btoa(hwid).slice(0, 24);
-        document.getElementById("status").innerHTML = `<strong>🎉 Your key is ready!</strong>`;
-        document.getElementById("key-box").innerText = generatedKey;
-        document.getElementById("key-box").style.display = "block";
-        document.getElementById("copyBtn").style.display = "inline-block";
-        document.getElementById("expiry-info").innerText = `🔒 Valid until: ${readableDate}`;
+        statusEl.innerHTML = `🎉 Your key is ready!`;
+        keyBox.innerText = generatedKey;
+        keyBox.style.display = "block";
+        copyBtn.style.display = "inline-block";
+        expiryInfo.innerText = `🔒 Valid until: ${readableDate}`;
       }).catch(err => {
-        document.getElementById("status").innerHTML = `❌ Failed to save your key: ${err}`;
+        statusEl.innerHTML = `❌ Failed to save your key: ${err}`;
       });
     });
 
     document.getElementById("copyBtn").onclick = () => {
-      navigator.clipboard.writeText(document.getElementById("key-box").innerText).then(() => {
+      navigator.clipboard.writeText(keyBox.innerText).then(() => {
         alert("✅ Key copied to clipboard!");
       });
     };
