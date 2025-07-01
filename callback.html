@@ -68,7 +68,8 @@
     <button onclick="window.location.href='roblox://'">🎮 Back to Roblox</button>
   </div>
 
-<script>
+ <script>
+  // Firebase setup
   const firebaseConfig = {
     apiKey: "AIzaSyDz-XphmGqzwG1zQHePFjfA25LRLidNrN4",
     authDomain: "xzuyaxhubkey.firebaseapp.com",
@@ -90,39 +91,43 @@
     throw new Error("Missing HWID or token");
   }
 
+  let expiresAt = null;
+
   async function validate() {
     try {
       const tokenSnap = await db.ref("tokens/" + hwid).get();
       const tokenMeta = await db.ref("token_meta/" + hwid).get();
-      const keySnap = await db.ref("keys/" + hwid).get();
 
       if (!tokenSnap.exists()) throw "❌ Token not found.";
 
       const tokenData = tokenSnap.val();
-      if (tokenData.token !== token) throw "❌ Invalid or mismatched token.";
+      if (tokenData.token !== token) throw "❌ Invalid or expired token.";
 
-      const expiresAt = keySnap.val()?.expires;
-      if (!expiresAt) throw "❌ Expired or missing key data.";
+      const created = tokenMeta.val()?.created || 0;
+      if (Date.now() - created > 5 * 60 * 1000) throw "❌ Token expired.";
 
-      const timeLeft = expiresAt - Date.now();
-      if (timeLeft <= 60 * 1000) throw "❌ Token expired (less than 1 minute remaining).";
-
-      // All good, hapus token dan simpan kembali key
+      // Delete token and assign key
       await db.ref("tokens/" + hwid).remove();
       await db.ref("token_meta/" + hwid).remove();
 
+      const durationSnap = await db.ref("settings/defaultDuration").get();
+      const duration = durationSnap.val() || 86400000; // default: 1 day
+
+      expiresAt = Date.now() + duration;
+      await db.ref("keys/" + hwid).set({ expires: expiresAt });
+
       statusEl.innerHTML = "🔓 Access is Allowed";
-      startCountdown(expiresAt);
+      startCountdown();
     } catch (err) {
       statusEl.innerHTML = err.toString();
       statusEl.classList.add("error");
     }
   }
 
-  function startCountdown(expAt) {
+  function startCountdown() {
     const update = () => {
       const now = Date.now();
-      const remaining = expAt - now;
+      const remaining = expiresAt - now;
 
       if (remaining <= 0) {
         timerEl.innerHTML = "⛔ Expired";
@@ -135,6 +140,7 @@
       const hrs = Math.floor(remaining / (1000 * 60 * 60));
       const mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
       const secs = Math.floor((remaining % (1000 * 60)) / 1000);
+
       timerEl.innerHTML = `⏳ Time left: ${hrs}h ${mins}m ${secs}s`;
     };
 
