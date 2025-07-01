@@ -93,36 +93,51 @@
 
   let expiresAt = null;
 
-  async function validate() {
-    try {
-      const tokenSnap = await db.ref("tokens/" + hwid).get();
-      const tokenMeta = await db.ref("token_meta/" + hwid).get();
+async function validate() {
+  try {
+    const tokenSnap = await db.ref("tokens/" + hwid).get();
+    if (!tokenSnap.exists()) throw "❌ Token not found.";
 
-      if (!tokenSnap.exists()) throw "❌ Token not found.";
+    const tokenData = tokenSnap.val();
+    if (tokenData.token !== token) throw "❌ Invalid or mismatched token.";
 
-      const tokenData = tokenSnap.val();
-      if (tokenData.token !== token) throw "❌ Invalid or expired token.";
+    const created = tokenData.created || 0;
 
-      const created = tokenMeta.val()?.created || 0;
-      if (Date.now() - created > 5 * 60 * 1000) throw "❌ Token expired.";
+    // Ambil key jika sudah pernah dibuat
+    const keySnap = await db.ref("keys/" + hwid).get();
+    const keyData = keySnap.val();
+    const now = Date.now();
 
-      // Delete token and assign key
-      await db.ref("tokens/" + hwid).remove();
-      await db.ref("token_meta/" + hwid).remove();
+    if (keyData && keyData.expires) {
+      const remaining = keyData.expires - now;
 
+      // Kalau waktu sisa kurang dari 1 menit → token expired
+      if (remaining <= 60 * 1000) {
+        await db.ref("tokens/" + hwid).remove(); // hapus token
+        throw "❌ Token expired (too close to key expiration). Please generate a new key.";
+      }
+
+      expiresAt = keyData.expires; // lanjut pakai key lama
+    } else {
+      // Kalau belum pernah punya key → buat baru dengan durasi - 1 menit
       const durationSnap = await db.ref("settings/defaultDuration").get();
-      const duration = durationSnap.val() || 86400000; // default: 1 day
+      const fullDuration = durationSnap.val() || 86400000; // 24 jam
+      expiresAt = now + (fullDuration - 60000);
 
-      expiresAt = Date.now() + duration;
       await db.ref("keys/" + hwid).set({ expires: expiresAt });
-
-      statusEl.innerHTML = "🔓 Access is Allowed";
-      startCountdown();
-    } catch (err) {
-      statusEl.innerHTML = err.toString();
-      statusEl.classList.add("error");
     }
+
+    // Token sudah dipakai, hapus dari DB
+    await db.ref("tokens/" + hwid).remove();
+    await db.ref("token_meta/" + hwid).remove(); // optional
+
+    statusEl.innerHTML = "🔓 Access is Allowed";
+    startCountdown();
+  } catch (err) {
+    statusEl.innerHTML = err.toString();
+    statusEl.classList.add("error");
   }
+}
 
   function startCountdown() {
     const update = () => {
