@@ -68,90 +68,81 @@
     <button onclick="window.location.href='roblox://'">🎮 Back to Roblox</button>
   </div>
 
-  <script>
-    // Firebase setup
-    const firebaseConfig = {
-      apiKey: "AIzaSyDz-XphmGqzwG1zQHePFjfA25LRLidNrN4",
-      authDomain: "xzuyaxhubkey.firebaseapp.com",
-      databaseURL: "https://xzuyaxhubkey-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "xzuyaxhubkey"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDz-XphmGqzwG1zQHePFjfA25LRLidNrN4",
+    authDomain: "xzuyaxhubkey.firebaseapp.com",
+    databaseURL: "https://xzuyaxhubkey-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "xzuyaxhubkey"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
 
-    const statusEl = document.getElementById("status");
-    const timerEl = document.getElementById("timer");
-    const params = new URLSearchParams(location.search);
-    const hwid = params.get("hwid");
-    const token = params.get("token");
+  const statusEl = document.getElementById("status");
+  const timerEl = document.getElementById("timer");
+  const params = new URLSearchParams(location.search);
+  const hwid = params.get("hwid");
+  const token = params.get("token");
 
-    if (!hwid || !token) {
-      statusEl.innerHTML = "❌ Missing HWID or token.";
+  if (!hwid || !token) {
+    statusEl.innerHTML = "❌ Missing HWID or token.";
+    statusEl.classList.add("error");
+    throw new Error("Missing HWID or token");
+  }
+
+  async function validate() {
+    try {
+      const tokenSnap = await db.ref("tokens/" + hwid).get();
+      const tokenMeta = await db.ref("token_meta/" + hwid).get();
+      const keySnap = await db.ref("keys/" + hwid).get();
+
+      if (!tokenSnap.exists()) throw "❌ Token not found.";
+
+      const tokenData = tokenSnap.val();
+      if (tokenData.token !== token) throw "❌ Invalid or mismatched token.";
+
+      const expiresAt = keySnap.val()?.expires;
+      if (!expiresAt) throw "❌ Expired or missing key data.";
+
+      const timeLeft = expiresAt - Date.now();
+      if (timeLeft <= 60 * 1000) throw "❌ Token expired (less than 1 minute remaining).";
+
+      // All good, hapus token dan simpan kembali key
+      await db.ref("tokens/" + hwid).remove();
+      await db.ref("token_meta/" + hwid).remove();
+
+      statusEl.innerHTML = "🔓 Access is Allowed";
+      startCountdown(expiresAt);
+    } catch (err) {
+      statusEl.innerHTML = err.toString();
       statusEl.classList.add("error");
-      throw new Error("Missing HWID or token");
     }
+  }
 
-    let expiresAt = null;
+  function startCountdown(expAt) {
+    const update = () => {
+      const now = Date.now();
+      const remaining = expAt - now;
 
-    async function validate() {
-      try {
-        const tokenSnap = await db.ref("tokens/" + hwid).get();
-        const tokenMeta = await db.ref("token_meta/" + hwid).get();
-
-        if (!tokenSnap.exists()) throw "❌ Token not found.";
-
-        const tokenData = tokenSnap.val();
-        if (tokenData.token !== token) throw "❌ Invalid or expired token.";
-
-        const created = tokenMeta.val()?.created || 0;
-        const durationSnap = await db.ref("settings/defaultDuration").get();
-        const duration = durationSnap.val() || 86400000; // default 1 day
-
-        expiresAt = created + duration;
-
-        // Anggap expired 1 menit sebelum bener2 expired
-        if (Date.now() > expiresAt - 60000) throw "❌ Token expired.";
-
-        // Delete token dan token_meta
-        await db.ref("tokens/" + hwid).remove();
-        await db.ref("token_meta/" + hwid).remove();
-
-        // Simpan ke keys/
-        await db.ref("keys/" + hwid).set({ expires: expiresAt });
-
-        statusEl.innerHTML = "🔓 Access is Allowed";
-        startCountdown();
-      } catch (err) {
-        statusEl.innerHTML = err.toString();
+      if (remaining <= 0) {
+        timerEl.innerHTML = "⛔ Expired";
+        statusEl.innerHTML = "❌ Access Expired. Please get a new key.";
         statusEl.classList.add("error");
+        clearInterval(interval);
+        return;
       }
-    }
 
-    function startCountdown() {
-      const update = () => {
-        const now = Date.now();
-        const remaining = expiresAt - now;
+      const hrs = Math.floor(remaining / (1000 * 60 * 60));
+      const mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+      const secs = Math.floor((remaining % (1000 * 60)) / 1000);
+      timerEl.innerHTML = `⏳ Time left: ${hrs}h ${mins}m ${secs}s`;
+    };
 
-        if (remaining <= 0) {
-          timerEl.innerHTML = "⛔ Expired";
-          statusEl.innerHTML = "❌ Access Expired. Please get a new key.";
-          statusEl.classList.add("error");
-          clearInterval(interval);
-          return;
-        }
+    update();
+    const interval = setInterval(update, 1000);
+  }
 
-        const hrs = Math.floor(remaining / (1000 * 60 * 60));
-        const mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-        const secs = Math.floor((remaining % (1000 * 60)) / 1000);
-
-        timerEl.innerHTML = `⏳ Time left: ${hrs}h ${mins}m ${secs}s`;
-      };
-
-      update();
-      const interval = setInterval(update, 1000);
-    }
-
-    validate();
-  </script>
+  validate();
+</script>
 </body>
 </html>
