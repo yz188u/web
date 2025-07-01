@@ -105,9 +105,9 @@
   <div class="container platforms" id="platformPage">
     <h3>Select a Platform to Continue</h3>
     <div class="platforms-wrapper" id="platformWrapper">
-      <a id="lootlabs" class="platform-button" target="_blank">LootLabs</a>
-      <a id="linkvertise" class="platform-button" target="_blank">Linkvertise</a>
-      <a id="workink" class="platform-button" target="_blank">Work.ink</a>
+      <a id="lootlabs" class="platform-button" target="_blank" rel="noopener noreferrer">LootLabs</a>
+      <a id="linkvertise" class="platform-button" target="_blank" rel="noopener noreferrer">Linkvertise</a>
+      <a id="workink" class="platform-button" target="_blank" rel="noopener noreferrer">Work.ink</a>
     </div>
   </div>
 
@@ -122,10 +122,11 @@
     const db = firebase.database();
 
     function submitHWID() {
-      const hwid = document.getElementById("hwidInput").value.trim();
+      const hwidRaw = document.getElementById("hwidInput").value.trim();
+      const hwid = encodeURIComponent(hwidRaw); // Encode untuk keamanan path Firebase
       const status = document.getElementById("status");
 
-      if (!hwid) {
+      if (!hwidRaw || hwidRaw.length < 3) {
         status.textContent = "❌ Please enter a valid HWID.";
         return;
       }
@@ -142,9 +143,9 @@
     function loadPlatforms(hwid) {
       db.ref("platforms").once("value").then((snapshot) => {
         const platforms = snapshot.val() || {};
-        const base = `https://verifyzuya.rf.gd/verify?hwid=${encodeURIComponent(hwid)}`;
+        const base = `https://verifyzuya.rf.gd/verify?hwid=${hwid}`;
 
-        const buttons = [];
+        let count = 0;
         const loot = document.getElementById("lootlabs");
         const linkv = document.getElementById("linkvertise");
         const work = document.getElementById("workink");
@@ -152,22 +153,22 @@
         if (platforms.lootlabs?.enabled) {
           loot.href = base + "&platform=lootlabs";
           loot.style.display = "inline-block";
-          buttons.push(loot);
+          count++;
         }
         if (platforms.linkvertise?.enabled) {
           linkv.href = base + "&platform=linkvertise";
           linkv.style.display = "inline-block";
-          buttons.push(linkv);
+          count++;
         }
         if (platforms.workink?.enabled) {
           work.href = base + "&platform=workink";
           work.style.display = "inline-block";
-          buttons.push(work);
+          count++;
         }
 
         const wrapper = document.getElementById("platformWrapper");
-        if (buttons.length === 1) wrapper.style.justifyContent = "center";
-        else if (buttons.length === 2) wrapper.style.justifyContent = "space-around";
+        if (count === 1) wrapper.style.justifyContent = "center";
+        else if (count === 2) wrapper.style.justifyContent = "space-around";
         else wrapper.style.justifyContent = "center";
 
         document.getElementById("formPage").style.display = "none";
