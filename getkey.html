@@ -1,77 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Get Key | XZuyaX HUB</title>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XZuyaX HUB - Key System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-database-compat.js"></script>
-
   <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: sans-serif;
-      background: #0d0f21;
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at 50% 20%, #4b0082, #000);
       color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    .container {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 2rem;
+      border-radius: 20px;
+      backdrop-filter: blur(15px);
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 0 30px rgba(255, 0, 255, 0.2);
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
       text-align: center;
-      padding: 40px;
+      background: linear-gradient(90deg, #ff77c6, #78dbff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
-
-    .button {
-      margin: 1rem;
-      padding: 1rem 2rem;
-      background: #ff4081;
-      border: none;
-      border-radius: 10px;
-      color: white;
-      font-size: 1.1rem;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-block;
-    }
-
-    pre {
-      background: #1a1a2e;
+    .tutorial-box {
+      background: rgba(255,255,255,0.05);
       padding: 1rem;
-      border-radius: 8px;
-      color: #00e5ff;
-      font-size: 0.95rem;
-      overflow-x: auto;
-      display: inline-block;
-      text-align: left;
-      max-width: 90%;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
     }
-
-    .copy-container {
-      margin-top: 1rem;
+    .tutorial-box ol { margin-left: 1.2rem; }
+    input[type="text"] {
+      width: 100%; padding: 1rem; border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+      color: white; margin-bottom: 1rem;
     }
-
-    .copy-btn {
-      background-color: #00e5ff;
-      color: #0d0f21;
-      border: none;
-      padding: 0.5rem 1rem;
-      font-size: 0.9rem;
-      border-radius: 6px;
+    button {
+      width: 100%; padding: 1rem;
+      background: linear-gradient(90deg, #ff77c6, #78dbff);
+      border: none; border-radius: 12px;
+      color: black; font-weight: bold;
       cursor: pointer;
     }
+    .status {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+    .platforms { display: none; margin-top: 2rem; }
+    .platforms h3 { text-align: center; margin-bottom: 1rem; }
+    .platforms-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+    .platform-button {
+      display: none;
+      background: #6f42c1;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 500;
+      min-width: 120px;
+      text-align: center;
+    }
+    .platform-button:hover { background: #8e44ad; }
   </style>
 </head>
 <body>
-  <h1>🔑 Get Your Access Key</h1>
-  <div id="loading">Checking your HWID...</div>
-
-  <div id="getkey-options" style="display: none;">
-    <h3>Select a platform to unlock your key:</h3>
-    <a id="lootlabs-btn" class="button">LootLabs</a>
-    <a id="linkvertise-btn" class="button">Linkvertise</a>
-    <a id="workink-btn" class="button">Work.ink</a>
+  <div class="container" id="formPage">
+    <h1>XZuyaX HUB Key System</h1>
+    <div class="tutorial-box">
+      <strong>How to Get Your HWID:</strong>
+      <ol>
+        <li>Open Roblox and join your game.</li>
+        <li>Click the "Get HWID" button in the GUI.</li>
+        <li>Paste the HWID into the field below.</li>
+        <li>Click Submit to unlock your platform links.</li>
+      </ol>
+    </div>
+    <input type="text" id="hwidInput" placeholder="Paste your HWID here...">
+    <button onclick="submitHWID()">🚀 Submit HWID</button>
+    <div class="status" id="status">Waiting for input...</div>
   </div>
 
-  <div id="script-container" style="margin-top: 2rem; display: none;">
-    <h3>Use this script in your executor:</h3>
-    <pre id="scriptCode">loadstring(game:HttpGet("https://webgetkey-xzuyaxs-projects.vercel.app/script.lua"))()</pre>
-    <div class="copy-container">
-      <button class="copy-btn" onclick="copyScript()">📋 Copy Script</button>
+  <div class="container platforms" id="platformPage">
+    <h3>Select a Platform to Continue</h3>
+    <div class="platforms-wrapper" id="platformWrapper">
+      <a id="lootlabs" class="platform-button" target="_blank">LootLabs</a>
+      <a id="linkvertise" class="platform-button" target="_blank">Linkvertise</a>
+      <a id="workink" class="platform-button" target="_blank">Work.ink</a>
     </div>
   </div>
 
@@ -80,66 +116,62 @@
       apiKey: "AIzaSyDz-XphmGqzwG1zQHePFjfA25LRLidNrN4",
       authDomain: "xzuyaxhubkey.firebaseapp.com",
       databaseURL: "https://xzuyaxhubkey-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "xzuyaxhubkey",
-      storageBucket: "xzuyaxhubkey.appspot.com",
-      messagingSenderId: "537227442896",
-      appId: "1:537227442896:web:eb9f74bd38618e5f873cd5"
+      projectId: "xzuyaxhubkey"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    const params = new URLSearchParams(window.location.search);
-    const hwid = params.get("hwid");
+    function submitHWID() {
+      const hwid = document.getElementById("hwidInput").value.trim();
+      const status = document.getElementById("status");
 
-    const loadingEl = document.getElementById("loading");
-    const optionsEl = document.getElementById("getkey-options");
-    const scriptBox = document.getElementById("script-container");
+      if (!hwid) {
+        status.textContent = "❌ Please enter a valid HWID.";
+        return;
+      }
 
-    if (!hwid) {
-      showScriptBox("❌ HWID not detected.<br><br>Please run the script in Roblox first:");
-    } else {
-      db.ref("pending/" + hwid).once("value").then(snap => {
-        if (snap.exists()) {
-          showPlatforms();
-        } else {
-          loadingEl.innerHTML = "⏳ Registering HWID... Please wait...";
-          fetch("https://verifyzuya.rf.gd/verify.php?hwid=" + hwid).then(() => {
-            setTimeout(() => location.reload(), 2000);
-          }).catch(() => {
-            showScriptBox("⚠️ Failed to register HWID. Please run the script manually.");
-          });
-        }
+      status.textContent = "⏳ Submitting HWID...";
+      db.ref("pending/" + hwid).set({ created: Date.now() }).then(() => {
+        status.textContent = "✅ HWID registered!";
+        loadPlatforms(hwid);
+      }).catch(error => {
+        status.textContent = "❌ Error: " + error.message;
       });
     }
 
-    function showPlatforms() {
-      loadingEl.style.display = "none";
-      optionsEl.style.display = "block";
-      scriptBox.style.display = "block";
+    function loadPlatforms(hwid) {
+      db.ref("platforms").once("value").then((snapshot) => {
+        const platforms = snapshot.val() || {};
+        const base = `https://verifyzuya.rf.gd/generate_redirect.php?hwid=${encodeURIComponent(hwid)}`;
 
-      const redirectBase = "https://verifyzuya/redirect.php?hwid=" + hwid + "&platform=";
+        const buttons = [];
+        const loot = document.getElementById("lootlabs");
+        const linkv = document.getElementById("linkvertise");
+        const work = document.getElementById("workink");
 
-      document.getElementById("lootlabs-btn").href =
-        "https://loot-link.com/s?PZw7KH9e&redir=" + encodeURIComponent(redirectBase + "lootlabs");
+        if (platforms.lootlabs?.enabled) {
+          loot.href = base + "&platform=lootlabs";
+          loot.style.display = "inline-block";
+          buttons.push(loot);
+        }
+        if (platforms.linkvertise?.enabled) {
+          linkv.href = base + "&platform=linkvertise";
+          linkv.style.display = "inline-block";
+          buttons.push(linkv);
+        }
+        if (platforms.workink?.enabled) {
+          work.href = base + "&platform=workink";
+          work.style.display = "inline-block";
+          buttons.push(work);
+        }
 
-      document.getElementById("linkvertise-btn").href =
-        "https://linkvertise.com/12345?o=redirect&url=" + encodeURIComponent(redirectBase + "linkvertise");
+        const wrapper = document.getElementById("platformWrapper");
+        if (buttons.length === 1) wrapper.style.justifyContent = "center";
+        else if (buttons.length === 2) wrapper.style.justifyContent = "space-around";
+        else wrapper.style.justifyContent = "center";
 
-      document.getElementById("workink-btn").href =
-        "https://work.ink/abc?redir=" + encodeURIComponent(redirectBase + "workink");
-    }
-
-    function showScriptBox(message) {
-      loadingEl.innerHTML = message;
-      document.getElementById("script-container").style.display = "block";
-    }
-
-    function copyScript() {
-      const text = document.getElementById("scriptCode").innerText;
-      navigator.clipboard.writeText(text).then(() => {
-        alert("✅ Script copied to clipboard!");
-      }).catch(() => {
-        alert("❌ Failed to copy!");
+        document.getElementById("formPage").style.display = "none";
+        document.getElementById("platformPage").style.display = "block";
       });
     }
   </script>
