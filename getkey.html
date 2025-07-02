@@ -10,36 +10,57 @@
   <style>
     :root {
       --gradient-main: linear-gradient(90deg, #ff77c6, #78dbff);
-      --dark-bg: radial-gradient(circle at 50% 20%, #4b0082, #000);
+      --main-bg: #0c0014;
     }
+
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
+
     html, body {
       font-family: 'Inter', sans-serif;
-      background: var(--dark-bg);
-      color: white;
+      background: var(--main-bg);
       min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+      z-index: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow-x: hidden;
       padding: 1.5rem;
+      color: white;
     }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: -40%;
+      left: -40%;
+      width: 180%;
+      height: 180%;
+      background: radial-gradient(circle at center, #8a2be2 0%, #0c0014 80%);
+      filter: blur(100px);
+      opacity: 0.6;
+      z-index: 0;
+      pointer-events: none;
+    }
+
     .container {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.12);
+      position: relative;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       padding: 2rem;
       border-radius: 20px;
       backdrop-filter: blur(20px);
       max-width: 520px;
       width: 100%;
       box-shadow: 0 0 30px rgba(255, 0, 255, 0.15);
-      transform: translateY(50px);
+      transform: translateY(40px);
       opacity: 0;
       animation: slideFadeIn 0.8s ease forwards;
+      z-index: 1;
     }
 
     @keyframes slideFadeIn {
@@ -64,7 +85,6 @@
       border-radius: 12px;
       margin-bottom: 1.5rem;
       border-left: 3px solid #ff77c6;
-      animation: fadeIn 1.2s ease-in;
     }
 
     .tutorial-box ol {
@@ -115,7 +135,6 @@
       font-size: 0.95rem;
       min-height: 24px;
       opacity: 0.85;
-      animation: fadeIn 1s ease-in-out;
     }
 
     .platforms {
@@ -154,11 +173,6 @@
       transform: scale(1.05);
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
     @media (max-width: 500px) {
       h1 { font-size: 1.7rem; }
       .container { padding: 1.5rem; }
@@ -171,7 +185,7 @@
     <div class="tutorial-box">
       <strong>How to Get Your HWID:</strong>
       <ol>
-        <li>Open Roblox and join your game.</li>
+        <li>Open Roblox,Join Game and Execute the Script.</li>
         <li>Click the <b>"Get HWID"</b> button in the GUI.</li>
         <li>Paste the HWID into the field below.</li>
         <li>Click Submit to unlock your verification platforms.</li>
