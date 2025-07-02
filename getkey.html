@@ -233,7 +233,7 @@
       const validSnap = await db.ref("valid_hwids/" + hwid).once("value");
 
       if (!validSnap.exists()) {
-        status.textContent = "❌ HWID not found. Please use the real one from Roblox.";
+        status.textContent = "❌ HWID not found. Please execute the script and Copy HWID First.";
         return;
       }
 
