@@ -181,7 +181,7 @@
 
     async function submitHWID() {
       const hwidRaw = document.getElementById("hwidInput").value.trim();
-      const hwid = encodeURIComponent(hwidRaw);
+      const hwid = hwidRaw; // tanpa encode
       const status = document.getElementById("status");
 
       if (!hwidRaw || !isValidFormat(hwidRaw)) {
