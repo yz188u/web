@@ -1,4 +1,4 @@
-<!-- Versi aman: XZuyaX HUB - Key System -->
+<!-- Versi Aman Final - XZuyaX HUB Key System -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,34 +6,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>XZuyaX HUB - Key System</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
-  <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-database-compat.js"></script>
   <style>
     :root {
       --gradient-main: linear-gradient(90deg, #ff77c6, #78dbff);
       --main-bg: #0c0014;
     }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
       font-family: 'Inter', sans-serif;
       background: var(--main-bg);
       min-height: 100vh;
       overflow-x: hidden;
-      position: relative;
-      z-index: 1;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 1.5rem;
       color: white;
     }
-
     body::before {
       content: "";
       position: fixed;
@@ -45,9 +34,7 @@
       filter: blur(100px);
       opacity: 0.6;
       z-index: 0;
-      pointer-events: none;
     }
-
     .container {
       position: relative;
       background: rgba(255, 255, 255, 0.06);
@@ -63,14 +50,9 @@
       animation: slideFadeIn 0.8s ease forwards;
       z-index: 1;
     }
-
     @keyframes slideFadeIn {
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
+      to { transform: translateY(0); opacity: 1; }
     }
-
     h1 {
       font-size: 2.2rem;
       text-align: center;
@@ -79,7 +61,6 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-
     .tutorial-box {
       background: rgba(255,255,255,0.05);
       padding: 1rem;
@@ -87,14 +68,12 @@
       margin-bottom: 1.5rem;
       border-left: 3px solid #ff77c6;
     }
-
     .tutorial-box ol {
       margin-left: 1.5rem;
       font-size: 0.95rem;
       line-height: 1.5;
       opacity: 0.9;
     }
-
     input[type="text"] {
       width: 100%;
       padding: 1rem;
@@ -104,14 +83,11 @@
       color: white;
       font-size: 1rem;
       margin-bottom: 1rem;
-      transition: border 0.3s ease;
     }
-
     input[type="text"]:focus {
       outline: none;
       border: 1px solid #78dbff;
     }
-
     button {
       width: 100%;
       padding: 1rem;
@@ -124,12 +100,10 @@
       cursor: pointer;
       transition: all 0.3s ease;
     }
-
     button:hover {
       transform: translateY(-2px) scale(1.01);
       box-shadow: 0 0 15px rgba(120, 219, 255, 0.4);
     }
-
     .status {
       text-align: center;
       margin-top: 1rem;
@@ -137,25 +111,21 @@
       min-height: 24px;
       opacity: 0.85;
     }
-
     .platforms {
       display: none;
       margin-top: 2rem;
     }
-
     .platforms h3 {
       text-align: center;
       margin-bottom: 1rem;
       font-size: 1.1rem;
     }
-
     .platforms-wrapper {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       gap: 12px;
     }
-
     .platform-button {
       display: none;
       background: #6f42c1;
@@ -168,12 +138,10 @@
       text-align: center;
       transition: transform 0.3s ease, background 0.3s ease;
     }
-
     .platform-button:hover {
       background: #8e44ad;
       transform: scale(1.05);
     }
-
     @media (max-width: 500px) {
       h1 { font-size: 1.7rem; }
       .container { padding: 1.5rem; }
@@ -186,7 +154,7 @@
     <div class="tutorial-box">
       <strong>How to Get Your HWID:</strong>
       <ol>
-        <li>Open Roblox,Join Game and Execute the Script.</li>
+        <li>Open Roblox, Join Game and Execute the Script.</li>
         <li>Click the <b>"Get HWID"</b> button in the GUI.</li>
         <li>Paste the HWID into the field below.</li>
         <li>Click Submit to unlock your verification platforms.</li>
@@ -223,7 +191,7 @@
 
       status.textContent = "🔍 Checking HWID...";
       try {
-        const res = await fetch("/api/submithwid", {
+        const res = await fetch("https://backend-black-tau-75.vercel.app/api/submithwid", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ hwid })
@@ -244,7 +212,7 @@
 
     async function loadPlatforms(hwid) {
       try {
-        const res = await fetch("/api/getplatforms");
+        const res = await fetch("https://backend-black-tau-75.vercel.app/api/getplatforms");
         const platforms = await res.json();
         const base = `https://verifyzuya.rf.gd/verify?hwid=${hwid}`;
         let count = 0;
