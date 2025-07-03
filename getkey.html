@@ -1,3 +1,4 @@
+<!-- Versi aman: XZuyaX HUB - Key System -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -206,15 +207,6 @@
   </div>
 
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyDz-XphmGqzwG1zQHePFjfA25LRLidNrN4",
-      authDomain: "xzuyaxhubkey.firebaseapp.com",
-      databaseURL: "https://xzuyaxhubkey-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "xzuyaxhubkey"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
     function isValidFormat(hwid) {
       return /^[a-zA-Z0-9_\-]{16,64}$/.test(hwid);
     }
@@ -230,25 +222,30 @@
       }
 
       status.textContent = "🔍 Checking HWID...";
-      const validSnap = await db.ref("valid_hwids/" + hwid).once("value");
+      try {
+        const res = await fetch("/api/submithwid", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ hwid })
+        });
+        const data = await res.json();
 
-      if (!validSnap.exists()) {
-        status.textContent = "❌ HWID not found. Please execute the script and Copy HWID First.";
-        return;
-      }
+        if (!data.valid) {
+          status.textContent = "❌ HWID not found. Please execute the script and Copy HWID First.";
+          return;
+        }
 
-      status.textContent = "⏳ Registering...";
-      db.ref("pending/" + hwid).set({ created: Date.now() }).then(() => {
         status.textContent = "✅ HWID registered successfully!";
         loadPlatforms(hwid);
-      }).catch(error => {
-        status.textContent = "❌ Error: " + error.message;
-      });
+      } catch (err) {
+        status.textContent = "❌ Error contacting server.";
+      }
     }
 
-    function loadPlatforms(hwid) {
-      db.ref("platforms").once("value").then((snapshot) => {
-        const platforms = snapshot.val() || {};
+    async function loadPlatforms(hwid) {
+      try {
+        const res = await fetch("/api/getplatforms");
+        const platforms = await res.json();
         const base = `https://verifyzuya.rf.gd/verify?hwid=${hwid}`;
         let count = 0;
 
@@ -277,7 +274,9 @@
 
         document.getElementById("formPage").style.display = "none";
         document.getElementById("platformPage").style.display = "block";
-      });
+      } catch (err) {
+        document.getElementById("status").textContent = "❌ Failed to load platforms.";
+      }
     }
   </script>
 </body>
